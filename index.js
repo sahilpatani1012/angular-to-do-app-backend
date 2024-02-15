@@ -74,6 +74,25 @@ app.patch('/api/:userEmail/add-todos', async (req, res) => {
   }
 })
 
+app.get('/api/update-list/:userEmail/:id', async (req, res) => {
+  try {
+    const { userEmail, id } = req.params;
+    const user = await User.findOne({ userEmail });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    let todoItem = user.todos.filter((todo) => todo.id === id)[0]
+    todoItem.completed = true;
+    await user.save();
+    res.status(200).json({ message: 'Todo item updated successfully', user });
+  }
+  catch (error) {
+    console.error('Error adding todo item:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+})
+
 app.post('/api/signup', async (req, res) => {
   try {
     const { userEmail, userPassword } = req.body;
