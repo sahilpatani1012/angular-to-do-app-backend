@@ -3,8 +3,6 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const session = require('express-session');
-const mongoose = require('./db');
-const Todo = require("./models/todo");
 const User = require("./models/user");
 const cors = require("cors");
 
@@ -39,7 +37,6 @@ app.get('/api/:userEmail', async (req, res) => {
     }
 
     const todos = user.todos;
-
     res.json(todos);
   }
   catch (error) {
@@ -50,7 +47,7 @@ app.get('/api/:userEmail', async (req, res) => {
 app.patch('/api/:userEmail/add-todos', async (req, res) => {
   try {
     const { userEmail } = req.params;
-    const item = req.body;
+    const { title, id, completed, deadline } = req.body;
 
     const user = await User.findOne({ userEmail });
 
@@ -58,7 +55,15 @@ app.patch('/api/:userEmail/add-todos', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    user.todos.push(item);
+    const newTodo = {
+      title,
+      id,
+      completed,
+      deadline
+    };
+
+    user.todos.push(newTodo);
+
     await user.save();
 
     res.status(200).json({ message: 'Todo item added successfully', user });
