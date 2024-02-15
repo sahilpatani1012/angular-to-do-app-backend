@@ -74,16 +74,17 @@ app.patch('/api/:userEmail/add-todos', async (req, res) => {
   }
 })
 
-app.get('/api/update-list/:userEmail/:id', async (req, res) => {
+app.patch('/api/update-list/:userEmail', async (req, res) => {
   try {
-    const { userEmail, id } = req.params;
+    const { userEmail } = req.params;
+    const {id} = req.body;
     const user = await User.findOne({ userEmail });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    let todoItem = user.todos.filter((todo) => todo.id === id)[0]
-    todoItem.completed = true;
+    let todoItem = user.todos.filter((todo) => todo.id === id)
+    todoItem[0].completed = true;
     await user.save();
     res.status(200).json({ message: 'Todo item updated successfully', user });
   }
